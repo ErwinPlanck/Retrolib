@@ -1,4 +1,5 @@
 def main_menu():
+
     print()
     print("╔══════════════════════════════════════════╗")
     print("║                 RetroLib                 ║")
@@ -17,6 +18,7 @@ def main_menu():
 
 
 def export_menu():
+
     print()
     print("╔══════════════════════════════════════════╗")
     print("║                  Exportar                ║")
@@ -33,6 +35,7 @@ def export_menu():
 
 
 def pause():
+
     input("\nPulsa ENTER para continuar...")
 
 
@@ -97,7 +100,7 @@ def retroarch_not_found():
     print()
     print("RetroArch no fue encontrado.")
     print()
-    print("  ENTER  →  Indicar ruta manualmente")
+    print("  ENTER  →  Configurar las rutas manualmente")
     print("  r      →  Volver a buscar")
     print("  q      →  Salir")
     print()
@@ -107,11 +110,33 @@ def retroarch_not_found():
     ).strip().lower()
 
 
-def ask_retroarch_path():
+def ask_retroarch_cfg_path():
 
     print()
-    print("Introduce la ruta al ejecutable de RetroArch.")
-    print("Puedes arrastrar el ejecutable desde Finder a Terminal.")
+    print("No se encontró el archivo de configuración de RetroArch.")
+    print()
+    print("Introduce la ruta al archivo:")
+    print()
+    print("  retroarch.cfg")
+    print()
+    print("Puedes arrastrar el archivo desde el explorador")
+    print("de archivos a la terminal.")
+    print()
+
+    return input("Ruta: ").strip()
+
+
+def ask_retroarch_executable_path():
+
+    print()
+    print("No se encontró el ejecutable de RetroArch.")
+    print()
+    print("Introduce la ruta al ejecutable:")
+    print()
+    print("  retroarch.exe")
+    print()
+    print("Puedes arrastrar el archivo desde el explorador")
+    print("de archivos a la terminal.")
     print()
 
     return input("Ruta: ").strip()

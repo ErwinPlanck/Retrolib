@@ -4,10 +4,11 @@ from pathlib import Path
 from assets import get_assets
 from get_files import get_files
 from library import get_game_metadata
-from retroarch_config import find_retroarch_executable
+from config import find_retroarch_executable
 
 from .names import clean_game_name
 from platforms import get_core_filename
+
 
 ASSET_FIELDS = {
     "box_front": "assets.boxFront",
@@ -20,43 +21,66 @@ ASSET_FIELDS = {
     "video": "assets.video",
 }
 
+
 GAME_METADATA_FIELDS = {
     "developer": "developer",
     "publisher": "publisher",
     "genre": "genre",
     "release": "release",
     "players": "players",
+    "rating": "rating",
     "description": "description",
     "platform": "platform",
 }
 
 
-def _relative_path(target: Path, start: Path) -> str:
+def _relative_path(
+    target: Path,
+    start: Path
+) -> str:
+
     return os.path.relpath(
         target,
         start=start
     ).replace("\\", "/")
 
 
-def generate_metadata(library, folders):
+def generate_metadata(
+    library,
+    folders,
+    config
+):
 
-    metadata_root = folders["metadata"] / "Pegasus"
+    metadata_root = (
+        folders["metadata"]
+        / "Pegasus"
+    )
+
     metadata_root.mkdir(
         parents=True,
         exist_ok=True
     )
 
-    retroarch_executable = find_retroarch_executable()
+    # Utilizar la ruta de RetroArch
+    # almacenada en config.json.
+    retroarch_executable = (
+        find_retroarch_executable(
+            config
+        )
+    )
 
     if retroarch_executable is None:
+
         raise RuntimeError(
-            "No se encontró el ejecutable de RetroArch"
+            "No se encontró el ejecutable "
+            "de RetroArch."
         )
 
     for system in library["systems"]:
 
         system_folder = (
-            folders["roms"] / system["name"]
+            folders["roms"]
+            / system["name"]
         )
 
         if not system_folder.exists():
@@ -71,7 +95,8 @@ def generate_metadata(library, folders):
             continue
 
         system_metadata_folder = (
-            metadata_root / system["name"]
+            metadata_root
+            / system["name"]
         )
 
         system_metadata_folder.mkdir(
@@ -96,6 +121,7 @@ def generate_metadata(library, folders):
         ]
 
         for extension in system["extensions"]:
+
             lines.append(
                 f"extension: {extension}"
             )
@@ -111,7 +137,10 @@ def generate_metadata(library, folders):
 
             game_path = game["path"]
             game_label = game["label"]
-            display_name = clean_game_name(game_label)
+
+            display_name = clean_game_name(
+                game_label
+            )
 
             game_metadata = get_game_metadata(
                 library,
@@ -132,7 +161,10 @@ def generate_metadata(library, folders):
                 f"file: {_relative_path(game_path, system_metadata_folder)}"
             )
 
-            for asset_type, pegasus_field in ASSET_FIELDS.items():
+            for (
+                asset_type,
+                pegasus_field
+            ) in ASSET_FIELDS.items():
 
                 if asset_type not in assets:
                     continue
@@ -143,15 +175,21 @@ def generate_metadata(library, folders):
                 )
 
                 lines.append(
-                    f"{pegasus_field}: {asset_path}"
+                    f"{pegasus_field}: "
+                    f"{asset_path}"
                 )
 
-            for metadata_key, pegasus_field in GAME_METADATA_FIELDS.items():
+            for (
+                metadata_key,
+                pegasus_field
+            ) in GAME_METADATA_FIELDS.items():
 
                 if metadata_key not in game_metadata:
                     continue
 
-                value = game_metadata[metadata_key]
+                value = game_metadata[
+                    metadata_key
+                ]
 
                 lines.append(
                     f"{pegasus_field}: {value}"
@@ -167,5 +205,6 @@ def generate_metadata(library, folders):
         ) as f:
 
             f.write(
-                "\n".join(lines).rstrip() + "\n"
+                "\n".join(lines).rstrip()
+                + "\n"
             )

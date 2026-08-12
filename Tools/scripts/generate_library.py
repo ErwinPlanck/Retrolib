@@ -170,18 +170,26 @@ def create_game_entry(
     )
 
     for field in (
-        "developer",
-        "publisher",
-        "genre",
-        "release",
-        "players",
-        "rating",
-        "description"
+    "developer",
+    "publisher",
+    "genre",
+    "release",
+    "players",
+    "rating",
+    "description"
     ):
 
         if field in xml_metadata:
 
-            game[field] = xml_metadata[field]
+            value = xml_metadata[field]
+
+            if field == "release":
+
+                value = normalize_release_date(
+                    value
+                )
+
+            game[field] = value
 
     return game_name, game
 
@@ -344,3 +352,23 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+def normalize_release_date(value):
+
+    if not value:
+        return ""
+
+    value = value.strip()
+
+    # Formato: YYYYMMDDTHHMMSS
+    if len(value) >= 8 and value[:8].isdigit():
+
+        date = value[:8]
+
+        return (
+            f"{date[0:4]}-"
+            f"{date[4:6]}-"
+            f"{date[6:8]}"
+        )
+
+    return value

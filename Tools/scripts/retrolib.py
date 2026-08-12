@@ -3,7 +3,11 @@ from exports.pegasus import generate_metadata
 
 from pegasus_config import configure_pegasus
 
-from config import load_config, find_retroarch
+from config import (
+    load_config,
+    find_retroarch,
+    find_retroarch_executable
+)
 
 from retroarch_config import (
     configure_retroarch,
@@ -24,12 +28,14 @@ from display import (
     pause,
     print_results,
     retroarch_not_found,
-    ask_retroarch_path,
+    ask_retroarch_cfg_path,
+    ask_retroarch_executable_path,
     retroarch_options
 )
 
 
 def all_ok(results):
+
     return all(
         result["exists"]
         for result in results
@@ -77,9 +83,16 @@ def verify_library_system(library, folders):
     print()
 
     if all_ok(results):
-        print("La biblioteca está correctamente configurada.")
+
+        print(
+            "La biblioteca está correctamente configurada."
+        )
+
     else:
-        print("Hay elementos que necesitan atención.")
+
+        print(
+            "Hay elementos que necesitan atención."
+        )
 
     pause()
 
@@ -104,7 +117,9 @@ def configure_retroarch_system(
     if all_ok(results):
 
         print()
-        print("RetroArch ya está correctamente configurado.")
+        print(
+            "RetroArch ya está correctamente configurado."
+        )
 
         pause()
 
@@ -128,15 +143,22 @@ def configure_retroarch_system(
     )
 
     print()
-    print("Configuración de RetroArch actualizada.")
+    print(
+        "Configuración de RetroArch actualizada."
+    )
 
     pause()
 
 
-def export_retroarch(library, folders):
+def export_retroarch(
+    library,
+    folders
+):
 
     print()
-    print("Exportando para RetroArch...")
+    print(
+        "Exportando para RetroArch..."
+    )
     print()
 
     generate_playlists(
@@ -145,31 +167,43 @@ def export_retroarch(library, folders):
     )
 
     print(
-        "✓ Playlists de RetroArch generadas correctamente."
+        "✓ Playlists de RetroArch "
+        "generadas correctamente."
     )
 
     pause()
 
 
-def export_pegasus(library, folders):
+def export_pegasus(
+    library,
+    folders,
+    config
+):
 
     print()
-    print("Exportando para Pegasus...")
+    print(
+        "Exportando para Pegasus..."
+    )
     print()
 
     generate_metadata(
         library,
-        folders
+        folders,
+        config
     )
 
     print(
-        "✓ Metadata de Pegasus generada correctamente."
+        "✓ Metadata de Pegasus "
+        "generada correctamente."
     )
 
     pause()
 
 
-def configure_pegasus_system(library, folders):
+def configure_pegasus_system(
+    library,
+    folders
+):
 
     pegasus_directories = get_pegasus_directories(
         library,
@@ -181,12 +215,17 @@ def configure_pegasus_system(library, folders):
     )
 
     print()
-    print("Pegasus configurado correctamente.")
+    print(
+        "Pegasus configurado correctamente."
+    )
 
     pause()
 
 
-def get_pegasus_directories(library, folders):
+def get_pegasus_directories(
+    library,
+    folders
+):
 
     directories = []
 
@@ -207,7 +246,13 @@ def get_pegasus_directories(library, folders):
     return directories
 
 
-def find_retroarch_interactive(config):
+def find_retroarch_interactive(
+    config
+):
+
+    # ---------------------------------------------
+    # Buscar retroarch.cfg
+    # ---------------------------------------------
 
     retroarch_cfg = find_retroarch(
         config
@@ -228,17 +273,74 @@ def find_retroarch_interactive(config):
 
             continue
 
-        path = ask_retroarch_path()
+        path = ask_retroarch_cfg_path()
 
         retroarch_cfg = find_retroarch(
             config,
             path
         )
 
+    # ---------------------------------------------
+    # Buscar retroarch.exe
+    # ---------------------------------------------
+
+    retroarch_executable = find_retroarch_executable(
+        config
+    )
+
+    while retroarch_executable is None:
+
+        print()
+        print(
+            "No se encontró el ejecutable de RetroArch."
+        )
+
+        print()
+        print(
+            "  ENTER  →  Indicar ruta manualmente"
+        )
+        print(
+            "  r      →  Volver a buscar"
+        )
+        print(
+            "  q      →  Salir"
+        )
+        print()
+
+        option = input(
+            "Selecciona una opción: "
+        ).strip().lower()
+
+        if option == "q":
+            return None
+
+        if option == "r":
+
+            retroarch_executable = (
+                find_retroarch_executable(
+                    config
+                )
+            )
+
+            continue
+
+        path = ask_retroarch_executable_path()
+
+        retroarch_executable = (
+            find_retroarch_executable(
+                config,
+                path
+            )
+        )
+
     return retroarch_cfg
 
 
-def export_menu_loop(library, folders):
+def export_menu_loop(
+    library,
+    folders,
+    config
+):
 
     while True:
 
@@ -255,16 +357,20 @@ def export_menu_loop(library, folders):
 
             export_pegasus(
                 library,
-                folders
+                folders,
+                config
             )
 
         elif option == "3":
+
             return
 
         else:
 
             print()
-            print("Opción no válida.")
+            print(
+                "Opción no válida."
+            )
 
             pause()
 
@@ -309,7 +415,8 @@ def main():
 
             export_menu_loop(
                 library,
-                folders
+                folders,
+                config
             )
 
         elif option == "4":
@@ -322,7 +429,9 @@ def main():
         elif option == "5":
 
             print()
-            print("Saliendo de RetroLib.")
+            print(
+                "Saliendo de RetroLib."
+            )
             print()
 
             break
@@ -330,7 +439,9 @@ def main():
         else:
 
             print()
-            print("Opción no válida.")
+            print(
+                "Opción no válida."
+            )
 
             pause()
 

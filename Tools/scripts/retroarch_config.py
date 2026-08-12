@@ -1,11 +1,6 @@
 from pathlib import Path
 
 from library import RETROARCH_DIRECTORIES
-from platforms import (
-    get_default_retroarch_cfg,
-    get_retroarch_executable
-)
-
 
 def load_retroarch(retroarch_cfg):
 
@@ -25,12 +20,16 @@ def load_retroarch(retroarch_cfg):
 
             if "=" in line:
 
-                key, value = line.split("=", 1)
+                key, value = line.split(
+                    "=",
+                    1
+                )
 
                 key = key.strip()
                 value = value.strip().strip('"')
 
                 if value.startswith("~"):
+
                     value = str(
                         Path(value).expanduser()
                     )
@@ -49,6 +48,7 @@ def verify_retroarch(retroarch, folders):
         path = folders[info["folder"]]
 
         if "subfolder" in info:
+
             path /= info["subfolder"]
 
         results.append(
@@ -56,7 +56,7 @@ def verify_retroarch(retroarch, folders):
                 "section": "RetroArch",
                 "name": info["name"],
                 "exists": (
-                    retroarch[key]
+                    retroarch.get(key)
                     == str(path)
                 )
             }
@@ -65,13 +65,17 @@ def verify_retroarch(retroarch, folders):
     return results
 
 
-def configure_retroarch(retroarch, folders):
+def configure_retroarch(
+    retroarch,
+    folders
+):
 
     for key, info in RETROARCH_DIRECTORIES.items():
 
         path = folders[info["folder"]]
 
         if "subfolder" in info:
+
             path /= info["subfolder"]
 
         retroarch[key] = str(path)
@@ -114,8 +118,3 @@ def save_retroarch(retroarch):
     ) as f:
 
         f.writelines(lines)
-
-
-def find_retroarch_executable():
-
-    return get_retroarch_executable()
